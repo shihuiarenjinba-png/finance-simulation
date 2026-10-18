@@ -1,0 +1,15 @@
+
+/* Portfolio's task-specific workspaces. No physical storefront, false trader characters or asset downloads. */
+#view-overview .panel{border-color:#3a4768}
+#view-portfolio .panel{background:linear-gradient(145deg,#1b2842,#111c32)}
+#view-portfolio .asset-cards{gap:11px}
+#view-portfolio .asset-row{border:1px solid #43557b;border-radius:10px;min-height:68px}
+#view-trade .panel{border-left:4px solid #8db8b7;background:linear-gradient(145deg,#1d3344,#141d34)}
+#view-bank .panel{border-left:4px solid #d2b77b;background:linear-gradient(145deg,#353041,#161e35)}
+#view-records .panel{border-left:4px solid #8094b4;background:linear-gradient(145deg,#222b3d,#151d31)}
+#view-trade .form-grid,#view-bank .form-grid{padding:13px;border:1px solid #4b5c78;border-radius:11px;background:#122039}
+#view-trade .quote,#view-bank .quote{border:1px solid #637393;line-height:1.85}
+#view-records .history-row{word-break:break-word}
+.view[hidden]{display:none!important}
+@media(max-width:700px){#view-trade .form-grid,#view-bank .form-grid{padding:9px}}
+@media(prefers-reduced-motion:reduce){.view *{animation:none!important;transition:none!important}}
