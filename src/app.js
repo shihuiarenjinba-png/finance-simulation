@@ -22,7 +22,35 @@ function stats(){
  $("turn").textContent=state.complete?"24 / 24":state.turn+" / "+E.MAX_TURNS;
  $("cash").textContent=money(state.cash);$("drawdown").textContent=(state.maxDrawdownBps/100).toFixed(2)+"%";
 }
+
+function allocationBoard(){
+ const bars=$("allocationBars"),legend=$("allocationLegend"),hint=$("allocationHint");
+ bars.replaceChildren();legend.replaceChildren();hint.className="allocation-hint";
+ if(recovery||state.complete){bars.setAttribute("aria-label","配分の変更はできません");hint.textContent=recovery?"保存データの保護中です。":"24四半期を完走しました。";return;}
+ try{
+  const values=allocations(),estimate=E.preview(state,values);
+  const entries=E.PROJECTS.map(p=>({key:p.id,name:p.name,value:values[p.id]}));
+  entries.push({key:"fees",name:"手数料",value:estimate.fees},{key:"reserve",name:"残す現金",value:estimate.buffer});
+  const denominator=Math.max(1,state.cash);
+  bars.setAttribute("aria-label",entries.map(e=>e.name+" "+money(e.value)).join("、"));
+  for(const e of entries){
+   const segment=el("span",undefined,"allocation-segment "+e.key);
+   segment.style.width=(e.value/denominator*100)+"%";segment.title=e.name+": "+money(e.value);
+   bars.append(segment);
+   const line=el("span");const dot=el("i",undefined,"allocation-dot "+e.key);
+   dot.setAttribute("aria-hidden","true");
+   line.append(dot,document.createTextNode(e.name+" "+Math.round(e.value/denominator*100)+"%"));
+   legend.append(line);
+  }
+  hint.textContent="配分額は合計"+money(estimate.invested)+"。残す現金"+money(estimate.buffer)+"は次の判断に使えます。予測は利益の保証ではありません。";
+ }catch(error){
+  bars.setAttribute("aria-label","入力値を確認してください");
+  hint.className="allocation-hint error";hint.textContent=error.message;
+ }
+}
+
 function preflight(){
+ allocationBoard();
  const root=$("preview");root.className="preview";root.replaceChildren();
  if(recovery){root.classList.add("error");root.append(el("strong","元のセーブを保持しています。"),el("p","詳細から元データを書き出すか、正常なセーブを読み込んでください。"));$("advance").disabled=true;return;}
  if(state.complete){root.append(el("p","24四半期の経営を完走しました。記録の書き出しや再挑戦ができます。"));$("advance").disabled=true;return;}
