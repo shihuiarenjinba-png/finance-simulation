@@ -8,6 +8,8 @@ function boot(initialRaw){
  class El{
   constructor(tag="div"){this.tag=tag;this.children=[];this.callbacks={};this._text="";this.value="";this.disabled=false;this.className="";this.files=[];
    this.classList={add:c=>{this.className+=" "+c;}};}
+  set id(value){this._id=value;elements[value]=this;}
+  get id(){return this._id;}
   set textContent(x){this._text=String(x);this.children=[];}
   get textContent(){return this._text+this.children.map(x=>x.textContent||"").join("");}
   append(...x){this.children.push(...x);}prepend(...x){this.children.unshift(...x);}
