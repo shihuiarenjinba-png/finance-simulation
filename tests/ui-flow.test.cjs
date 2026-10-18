@@ -2,11 +2,11 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path"),vm=require("node:vm"),E=require("../src/engine.js");
 const code=fs.readFileSync(path.join(__dirname,"../src/app.js"),"utf8");
 function boot(initialRaw){
- const ids=["turn","cash","drawdown","projects","preview","advance","result","history","export","import","reset","saveFile"];
+ const ids=["turn","cash","drawdown","projects","allocationBars","allocationLegend","allocationHint","preview","advance","result","history","export","import","reset","saveFile"];
  const map=new Map(),elements={},listeners={};
  if(initialRaw!==undefined)map.set("fictional-finance:save:v1",initialRaw);
  class El{
-  constructor(tag="div"){this.tag=tag;this.children=[];this.callbacks={};this._text="";this.value="";this.disabled=false;this.className="";this.files=[];
+  constructor(tag="div"){this.tag=tag;this.children=[];this.callbacks={};this._text="";this.value="";this.disabled=false;this.className="";this.files=[];this.style={};
    this.classList={add:c=>{this.className+=" "+c;}};}
   set id(value){this._id=value;elements[value]=this;}
   get id(){return this._id;}
@@ -18,7 +18,7 @@ function boot(initialRaw){
   click(){if(this.callbacks.click&&!this.disabled)this.callbacks.click({target:this});}
  }
  for(const id of ids)elements[id]=new El(id);
- const doc={getElementById:id=>elements[id]??null,createElement:tag=>new El(tag),
+ const doc={getElementById:id=>elements[id]??null,createElement:tag=>new El(tag),createTextNode:text=>({textContent:String(text)}),
   addEventListener:(n,f)=>{listeners[n]=f},body:{append(){}}};
  const storage={getItem:key=>map.get(key)??null,setItem:(key,x)=>map.set(key,x)};
  let download=null;
