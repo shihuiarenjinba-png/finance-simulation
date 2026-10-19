@@ -28,11 +28,25 @@ jobs:
         run: |
           node _qa_capture_tool/scripts/capture-windows-ui.cjs "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP\finance-simulation-screens"
           exit $LASTEXITCODE
+      - name: Execute real gameplay, browser restart, and two-backup acceptance
+        shell: pwsh
+        run: |
+          node scripts/windows-edge-gameplay.cjs "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP\finance-gameplay"
+          exit $LASTEXITCODE
       - name: Publish captured UI and error manifest
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Finance-Windows-Edge-screen-QA
           path: ${{ runner.temp }}/finance-simulation-screens
+      - name: Publish actual gameplay screenshots and recovery audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Finance-Windows-Gameplay-Save-QA
+          path: ${{ runner.temp }}/finance-gameplay
+          retention-days: 14
+          if-no-files-found: warn
+
           retention-days: 14
           if-no-files-found: warn
