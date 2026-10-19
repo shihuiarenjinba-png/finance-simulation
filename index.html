@@ -38,6 +38,6 @@
 <div id="bankQuote" class="quote"></div><div class="actions"><button class="primary" type="button" id="borrow">借り入れる</button><button type="button" id="repay">返済する</button></div>
 <small>残高には営業日ごとに0.03%の利息（最低1ポイント）がかかります。現金が不足する日は先に資産を売却してください。</small></div></section>
 <section id="view-records" class="view" hidden><div class="panel"><h2>取引・セーブ管理</h2><div id="history"></div><div class="actions"><button type="button" id="export">セーブ書き出し</button><button type="button" id="import">セーブ読み込み</button><button type="button" id="reset" class="danger">新しい運用を始める</button><input id="importFile" type="file" accept=".json,application/json" hidden></div>
-<p>旧版のセーブは別のキーで保存されます。旧24四半期版はサイドバーのリンクから引き続き利用できます。</p></div></section>
+<div class="form-grid"><label>保護済みバックアップ<select id="backupSlot" aria-label="書き出すバックアップを選択"></select></label><button type="button" id="exportBackup">選んだバックアップを書き出す</button></div><p>新規開始・読み込みの際は、異なるセーブを上書きせずバックアップを別枠に保管します。必要に応じて書き出してください。</p><p>旧版のセーブは別のキーで保存されます。旧24四半期版はサイドバーのリンクから引き続き利用できます。</p></div></section>
 <footer>流動性・評価額・価格変動は架空のゲームモデルです。実際の金融市場や投資助言ではありません。</footer>
 </main></div></body></html>
