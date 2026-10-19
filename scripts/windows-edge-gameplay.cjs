@@ -55,7 +55,7 @@ async function main(){
   const waitReady=async()=>{
    for(let i=0;i<100;i++){
     try{if(await evaluate(()=>document.readyState==="complete"&&
-      !!window.LiquidPortfolio&&/100,000/.test(document.getElementById("equity").textContent)))return;}catch(_e){}
+      !!window.LiquidPortfolio&&/pt/.test(document.getElementById("equity").textContent)))return;}catch(_e){}
     await nap(100);
    }
    throw Error("UI init timed out");
