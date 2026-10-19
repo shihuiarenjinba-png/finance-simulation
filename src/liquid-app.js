@@ -5,6 +5,43 @@ let state,recovery=false,unreadable=null,notice="",view="overview";
 const money=v=>Math.round(v).toLocaleString("ja-JP")+" pt";
 function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
 function store(){if(recovery)return false;try{localStorage.setItem(SAVE,JSON.stringify(state));return true;}catch(e){notice="保存できませんでした。バックアップを作成してください。";return false;}}
+function backupKeys(){
+ const keys=[];
+ for(let i=1;i<=100;i++){const key=i===1?BACKUP:BACKUP+":"+i;
+  if(localStorage.getItem(key)===null)break;
+  keys.push(key);
+ }
+ return keys;
+}
+function preserveBackup(raw){
+ if(raw===null)return;
+ for(let i=1;i<=100;i++){
+  const key=i===1?BACKUP:BACKUP+":"+i,previous=localStorage.getItem(key);
+  if(previous===raw)return;
+  if(previous===null){localStorage.setItem(key,raw);return;}
+ }
+ throw Error("保存済みバックアップが上限です。バックアップを書き出してから作業してください。");
+}
+function backupList(){
+ const select=$("backupSlot"),current=select.value,keys=backupKeys();
+ select.replaceChildren();
+ for(let i=0;i<keys.length;i++){const option=node("option","バックアップ "+(i+1));
+  option.value=keys[i];select.append(option);}
+ select.value=keys.includes(current)?current:(keys.at(-1)||"");
+ $("exportBackup").disabled=keys.length===0;
+}
+function exportSavedBackup(){
+ const key=$("backupSlot").value,raw=key?localStorage.getItem(key):null;
+ if(raw===null)throw Error("書き出すバックアップがありません。");
+ try{
+  const valid=E.validate(JSON.parse(raw));
+  download("liquid-saved-backup-"+key.split(":").at(-1)+".json",JSON.stringify({schema:E.VERSION,state:valid},null,2));
+  notice="バックアップを書き出しました。";
+ }catch(_error){
+  download("liquid-unreadable-backup.txt",raw);
+  notice="形式を確認できないバックアップを原文のまま書き出しました。";
+ }
+}
 function load(){let raw=null;try{raw=localStorage.getItem(SAVE);return raw?E.validate(JSON.parse(raw)):E.initial();}
  catch(e){recovery=true;unreadable=raw;notice="セーブに不整合があります。原本は上書きせず保護しています。";return E.initial();}}
 function action(event){if(recovery){notice="セーブ復旧中は操作できません。";render();return;}
@@ -82,14 +119,14 @@ function records(){const root=$("history");root.replaceChildren();
  e.op==="borrow"?"借入 "+money(e.amount):"返済 "+money(e.amount);
  root.append(node("div",text,"history-row"));
  }}
-function render(){stats();chart();allocation();holdings();prices();updateBank();records();}
+function render(){stats();chart();allocation();holdings();prices();updateBank();records();backupList();}
 function download(name,content){const url=URL.createObjectURL(new Blob([content],{type:"application/json"})),a=node("a");
  a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 async function importFile(file){if(!file)return;try{
  if(file.size>400000)throw Error("セーブの容量が大きすぎます。");
  const data=JSON.parse(await file.text());if(data.schema!==E.VERSION)throw Error("新しい流動資産版のセーブのみ読み込めます。");
  const next=E.validate(data.state);if(!confirm("現在の保存内容をバックアップし、読み込みますか？"))return;
- const previous=localStorage.getItem(SAVE);if(previous!==null)localStorage.setItem(BACKUP,previous);
+ const previous=localStorage.getItem(SAVE);preserveBackup(previous);
  localStorage.setItem(SAVE,JSON.stringify(next));state=next;recovery=false;unreadable=null;notice="セーブを復元しました。";render();
  }catch(e){notice=e.message;render();}}
 function init(){state=load();if(!recovery)store();render();
@@ -106,8 +143,9 @@ function init(){state=load();if(!recovery)store();render();
  recovery&&unreadable!==null?unreadable:JSON.stringify({schema:E.VERSION,state},null,2)));
  $("import").addEventListener("click",()=>$("importFile").click());
  $("importFile").addEventListener("change",e=>{const f=e.target.files[0];e.target.value="";void importFile(f);});
+ $("exportBackup").addEventListener("click",()=>{try{exportSavedBackup();render();}catch(e){notice=e.message;render();}});
  $("reset").addEventListener("click",()=>{if(!confirm("現在のセーブをバックアップして新しい運用を始めますか？"))return;
- try{const raw=localStorage.getItem(SAVE);if(raw!==null)localStorage.setItem(BACKUP,raw);
+ try{const raw=localStorage.getItem(SAVE);preserveBackup(raw);
  const next=E.initial();localStorage.setItem(SAVE,JSON.stringify(next));state=next;recovery=false;unreadable=null;notice="新しい運用を始めました。";render();switchView("overview");}
  catch(e){notice="バックアップまたは新規保存に失敗しました。既存セーブを保護します。";render();}});
 }
