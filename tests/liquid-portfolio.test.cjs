@@ -36,6 +36,6 @@ test("default game is an actual trade UI, legacy game and saves are retained",()
  const html=fs.readFileSync("index.html","utf8"),code=fs.readFileSync("src/liquid-app.js","utf8");
  for(const id of ["equityChart","holdingsTable","buy","sell","borrow","repay","nextDay","export","import"])assert.match(html,new RegExp('id="'+id+'"'));
  assert.match(html,/legacy\.html/);assert.match(fs.readFileSync("legacy.html","utf8"),/src\/engine\.js/);
- assert.match(code,/liquid-portfolio:save:v2/);assert.match(code,/localStorage\.setItem\(BACKUP/);
+ assert.match(code,/function preserveBackup\(raw\)/);assert.match(code,/localStorage\.setItem\(key,raw\)/);assert.match(code,/localStorage\.setItem\(BACKUP/);
  assert.match(html,/connect-src 'none'/);
 });
