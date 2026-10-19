@@ -23,12 +23,15 @@ function preserveBackup(raw){
  throw Error("保存済みバックアップが上限です。バックアップを書き出してから作業してください。");
 }
 function backupList(){
- const select=$("backupSlot"),current=select.value,keys=backupKeys();
- select.replaceChildren();
- for(let i=0;i<keys.length;i++){const option=node("option","バックアップ "+(i+1));
-  option.value=keys[i];select.append(option);}
- select.value=keys.includes(current)?current:(keys.at(-1)||"");
- $("exportBackup").disabled=keys.length===0;
+ const select=$("backupSlot"),current=select.value;
+ try{
+  const keys=backupKeys();
+  select.replaceChildren();
+  for(let i=0;i<keys.length;i++){const option=node("option","バックアップ "+(i+1));
+   option.value=keys[i];select.append(option);}
+  select.value=keys.includes(current)?current:(keys.at(-1)||"");
+  $("exportBackup").disabled=keys.length===0;
+ }catch(_error){select.replaceChildren();$("exportBackup").disabled=true;}
 }
 function exportSavedBackup(){
  const key=$("backupSlot").value,raw=key?localStorage.getItem(key):null;
