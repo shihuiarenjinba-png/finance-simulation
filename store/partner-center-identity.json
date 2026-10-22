@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "productTitle": "finance-simulation (流動資産ゲーム)",
+  "repository": "shihuiarenjinba-png/finance-simulation",
+  "storeId": "9NKFP77MR159",
+  "identityName": "OkinawaDesktopTools.finance-simulation",
+  "publisher": "CN=46263F21-A700-41DB-8C9B-114C22FB82FC",
+  "publisherDisplayName": "Okinawa Desktop Tools",
+  "packageFamilyName": "OkinawaDesktopTools.finance-simulation_j8yefg9jgfh58",
+  "packageSid": "S-1-15-2-77915283-2507871542-4243860613-1907016356-3399226376-1607097522-4010524336",
+  "partnerCenterStatus": "IDENTITY_VALUES_SUPPLIED_BY_OWNER; submission/lifecycle status not rechecked",
+  "partnerCenterStatusVerifiedAt": null,
+  "storeDeepLink": null,
+  "webStoreUrl": null,
+  "storeLinksNote": "Available after the product is live (per pasted Partner Center view)",
+  "storeListingLanguages": "UNCONFIRMED",
+  "applicationLanguages": "UNCONFIRMED",
+  "formalStoreMsix": {
+    "status": "UNCONFIRMED; CI success is not evidence that a formal Store MSIX exists.",
+    "path": null,
+    "sha256": null
+  },
+  "verificationSource": "Owner-provided Partner Center product identity fields in chat, 2026-10-22",
+  "storeSubmission": "HOLD",
+  "notes": "The pasted values used the HTML entity &#x20; suffix. Identifier tokens are stored without trailing whitespace; compare the exact current Partner Center identity against AppxManifest before building/uploading. Do not infer language support, package existence, certification, or live status from Store ID alone. UNCONFIRMED; CI success is not evidence that a formal Store MSIX exists."
+}
