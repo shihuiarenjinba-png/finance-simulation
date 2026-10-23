@@ -13,7 +13,7 @@ function gate(env,platform=process.platform,installed= null){
  if(record.storeSubmission!=="HOLD")e.push("storeSubmission gateを再確認してください");
  if(env.STORE_IDENTITY_CONFIRMED!=="YES"&&!(candidate&&env.STORE_IDENTITY_CONFIRMED==="OWNER_APPROVED"))e.push("Identityの確認値が必要です（候補のみOWNER_APPROVEDを許可）");
  if(!candidate&&env.STORE_BRAND_APPROVED!=="YES")e.push("正式ビルドにはSTORE_BRAND_APPROVED=YESが必要です");
- if(!candidate&&env.STORE_PACKAGE_VERSION_APPROVED!=="YES")e.push("正式ビルドには明示承認済みStore Versionが必要です");
+ if(!candidate&&env.STORE_PACKAGE_VERSION_APPROVED!=="YES")e.push("STORE_PACKAGE_VERSION_APPROVED=YES（所有者承認済みStore Version）が正式ビルドに必要です");
  e.push(...versionErrors(env.STORE_PACKAGE_VERSION));
  let b=installed;try{if(b===null)b=JSON.parse(fs.readFileSync(path.join(root,"node_modules/electron-builder/package.json"),"utf8")).version;}catch{}
  if(b!==builderVersion)e.push("electron-builder "+builderVersion+" が必要です。共有依存は変更せず隔離ビルド環境を使用してください");
