@@ -1,4 +1,12 @@
 $ErrorActionPreference = "Stop"
+function Get-FileSha256Hex {
+  param([Parameter(Mandatory=$true)][string]$Path)
+  $algorithm = [System.Security.Cryptography.SHA256]::Create()
+  $stream = [System.IO.File]::OpenRead($Path)
+  try { return ([System.BitConverter]::ToString($algorithm.ComputeHash($stream))).Replace("-", "") }
+  finally { $stream.Dispose(); $algorithm.Dispose() }
+}
+
 $root = Split-Path -Parent $PSScriptRoot
 $record = Get-Content -LiteralPath (Join-Path $root "store/partner-center-identity.json") -Raw -Encoding UTF8 | ConvertFrom-Json
 $dir = Join-Path $root "dist-msix-store-candidate"
@@ -27,7 +35,7 @@ try {
   if (-not $propertiesName -or [string]$propertiesName.InnerText -cne [string]$record.productTitle) { throw "Package/Properties/DisplayName differs from recorded title" }
   if ($visualElements.Count -ne 1 -or [string]$visualElements[0].GetAttribute("DisplayName") -cne [string]$record.productTitle) { throw "uap:VisualElements/@DisplayName differs from recorded title" }
   Write-Host "MANIFEST_IDENTITY_PASS $($record.identityName) $($identity.Version) x64"
-  Write-Host ("MSIX_SHA256=" + (Get-FileHash -LiteralPath $packages[0].FullName -Algorithm SHA256).Hash)
-  Write-Host ("MSIXUPLOAD_SHA256=" + (Get-FileHash -LiteralPath $uploads[0].FullName -Algorithm SHA256).Hash)
+  Write-Host ("MSIX_SHA256=" + (Get-FileSha256Hex -Path $packages[0].FullName))
+  Write-Host ("MSIXUPLOAD_SHA256=" + (Get-FileSha256Hex -Path $uploads[0].FullName))
   Write-Host "Candidate only: live Partner Center acceptance, signed submission, WACK and Windows install/save/restore remain HOLD."
 } finally { $zip.Dispose() }
