@@ -3,7 +3,7 @@ const fs=require("node:fs");
 const record=require("../store/partner-center-identity.json");
 const {versionErrors}=require("./store-msix.cjs");
 function decode(v){return String(v).replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16))).replace(/&#([0-9]+);/g,(_,n)=>String.fromCodePoint(parseInt(n,10))).replace(/&amp;/g,"&");}
-function attr(tag,n){const r=new RegExp("\\b"+n+"\\s*=\\s*([\\"'])(.*?)\\1","g"),m=Array.from(tag.matchAll(r));if(m.length!==1)throw new Error("Manifest Identity."+n+" attribute must occur exactly once");return decode(m[0][2]);}
+function attr(tag,n){const r=new RegExp('\\b'+n+'\\s*=\\s*([\\x22\\x27])(.*?)\\1','g'),m=Array.from(tag.matchAll(r));if(m.length!==1)throw new Error("Manifest Identity."+n+" attribute must occur exactly once");return decode(m[0][2]);}
 function rewrite(text,version,identity=record){
  const errors=versionErrors(version);if(errors.length)throw new Error(errors.join("; "));
  const tags=text.match(/<Identity\b[^>]*>/g)||[];if(tags.length!==1)throw new Error("Manifest must contain exactly one Identity element");
