@@ -1,0 +1,48 @@
+name: finance-simulation MSIX internal candidate
+on:
+  push:
+    branches:
+      - ops/msix-candidate-build-20261023
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  store-candidate:
+    runs-on: windows-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Install project dependencies without writing a lockfile
+        run: npm install --no-audit --no-fund --no-package-lock
+      - name: Generate review-only icon candidates
+        run: node scripts/make-store-candidate-icons.cjs
+      - name: Run source and Store packaging regression tests
+        run: npm test
+      - name: Build and verify unsigned internal MSIX candidate
+        run: npm run build:msix
+        env:
+          STORE_BUILD_MODE: CANDIDATE
+          STORE_ID: 9NKFP77MR159
+          STORE_IDENTITY_NAME: OkinawaDesktopTools.finance-simulation
+          STORE_PUBLISHER: CN=46263F21-A700-41DB-8C9B-114C22FB82FC
+          STORE_PUBLISHER_DISPLAY_NAME: Okinawa Desktop Tools
+          STORE_DISPLAY_NAME: finance-simulation
+          SOURCE_GIT_COMMIT: ${{ github.sha }}
+          STORE_IDENTITY_CONFIRMED: OWNER_APPROVED
+          STORE_BRAND_APPROVED: CANDIDATE_ONLY
+          STORE_PACKAGE_VERSION_APPROVED: CANDIDATE_ONLY
+          STORE_PACKAGE_VERSION: 1.0.0.0
+      - name: Upload candidate artifacts and handoff ledger
+        if: ${{ always() && hashFiles('dist-msix-store-candidate/**') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-simulation-msix-internal-candidate-${{ github.run_number }}
+          path: |
+            dist-msix-store-candidate/*.msix
+            dist-msix-store-candidate/*.msixupload
+            dist-msix-store-candidate/MSIX_CANDIDATE_HANDOFF.json
+          if-no-files-found: error
+          retention-days: 14
