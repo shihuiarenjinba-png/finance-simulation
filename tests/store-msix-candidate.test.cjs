@@ -22,6 +22,9 @@ test("configuration reads Identity from the canonical JSON and targets x64 MSIX 
  assert.equal(c.msix.identityName,record.identityName);assert.equal(c.msix.publisher,record.publisher);assert.equal(c.msix.publisherDisplayName,record.publisherDisplayName);
  assert.equal(c.msix.displayName,record.productTitle);assert.deepEqual(c.win.target,[{target:"msix",arch:["x64"]}]);
  assert.equal(c.appxManifestCreated,"./scripts/store-msix-manifest-hook.cjs");
+ assert.ok(c.files.includes("*.html"),"Must include all locally linked HTML pages, including legacy.html");
+ assert.ok(require("node:fs").readFileSync(require("node:path").join(__dirname,"../index.html"),"utf8").includes("legacy.html"),"Current UI links to legacy page");
+ assert.ok(require("node:fs").existsSync(require("node:path").join(__dirname,"../legacy.html")));
 });
 test("candidate icon generation is deterministic and has Store-required dimensions",()=>{
  for(const [name,[w,h]] of Object.entries(icons.specs)){const b=icons.paint(w,h);assert.equal(b.subarray(0,8).toString("hex"),"89504e470d0a1a0a");assert.equal(b.readUInt32BE(16),w,name);assert.equal(b.readUInt32BE(20),h,name);assert.ok(b.equals(icons.paint(w,h)));}
