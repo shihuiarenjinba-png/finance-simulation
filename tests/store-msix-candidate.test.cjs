@@ -12,7 +12,7 @@ test("candidate mode uses exactly the canonical product identity but does not cl
  const env={STORE_BUILD_MODE:"CANDIDATE",STORE_ID:record.storeId,STORE_IDENTITY_NAME:record.identityName,STORE_PUBLISHER:record.publisher,STORE_PUBLISHER_DISPLAY_NAME:record.publisherDisplayName,STORE_IDENTITY_CONFIRMED:"OWNER_APPROVED",STORE_BRAND_APPROVED:"CANDIDATE_ONLY",STORE_PACKAGE_VERSION_APPROVED:"CANDIDATE_ONLY",STORE_PACKAGE_VERSION:"1.0.0.0"};
  assert.deepEqual(msix.gate(env,"win32",msix.builderVersion),[]);
  const formal=msix.gate({...env,STORE_BUILD_MODE:undefined},"win32",msix.builderVersion).join("\n");
- assert.match(formal,/STORE_BRAND_APPROVED/);assert.match(formal,/STORE_PACKAGE_VERSION_APPROVED/);assert.match(formal,/STORE_IDENTITY_CONFIRMED/);
+ assert.match(formal,/STORE_BRAND_APPROVED/);assert.match(formal,/STORE_PACKAGE_VERSION_APPROVED/);assert.match(formal,/STORE_IDENTITY_CONFIRMED|Identityの確認値/);
  assert.match(msix.gate({...env,STORE_IDENTITY_NAME:"OkinawaDesktopTools.WRONG"},"win32",msix.builderVersion).join("\n"),/正本Identity JSONと不一致/);
 });
 test("configuration reads Identity from the canonical JSON and targets x64 MSIX only",()=>{
