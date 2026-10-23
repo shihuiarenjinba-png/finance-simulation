@@ -24,6 +24,7 @@ test("configuration reads Identity from the canonical JSON and targets x64 MSIX 
 test("candidate icon generation is deterministic and has Store-required dimensions",()=>{
  for(const [name,[w,h]] of Object.entries(icons.specs)){const b=icons.paint(w,h);assert.equal(b.subarray(0,8).toString("hex"),"89504e470d0a1a0a");assert.equal(b.readUInt32BE(16),w,name);assert.equal(b.readUInt32BE(20),h,name);assert.ok(b.equals(icons.paint(w,h)));}
 });
+test("PowerShell verifier reads VisualElements/@DisplayName as an attribute",()=>{const verifier=require("node:fs").readFileSync(require("node:path").join(__dirname,"../scripts/verify-store-msix.ps1"),"utf8");assert.match(verifier,/GetAttribute\("DisplayName"\)/);assert.match(verifier,/Properties\/DisplayName/);});
 test("Manifest hook rewrites only Version and checks both display-name fields",()=>{
  const source='<?xml version="1.0"?><Package><Identity Name="'+record.identityName+'" Publisher="'+record.publisher+'" Version="0.1.0.0" ProcessorArchitecture="x64"/><Properties><DisplayName>'+record.productTitle+'</DisplayName><PublisherDisplayName>'+record.publisherDisplayName+'</PublisherDisplayName></Properties><Applications><Application><VisualElements DisplayName="'+record.productTitle+'"/></Application></Applications></Package>';
  const updated=hook.rewrite(source,"1.0.0.0");assert.ok(updated.includes('Version="1.0.0.0"'));assert.ok(updated.includes('Name="'+record.identityName+'"'));assert.ok(updated.includes('Publisher="'+record.publisher+'"'));assert.ok(updated.includes(record.publisherDisplayName));
