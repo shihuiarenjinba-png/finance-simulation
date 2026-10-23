@@ -9,6 +9,8 @@ test("Store Version validation rejects malformed values and nonzero revision",()
  for(const v of ["0.1.0.0","1.0.0","1.0.0.1","01.0.0.0","1.65536.0.0","1.0.0.x"])assert.ok(msix.versionErrors(v).length,v);
 });
 test("candidate mode uses exactly the canonical product identity but does not claim commercial approval",()=>{
+ // Prepare the non-destructive review-only logo assets so this test is independent of workflow step order.
+ icons.run();
  const env={STORE_BUILD_MODE:"CANDIDATE",STORE_ID:record.storeId,STORE_IDENTITY_NAME:record.identityName,STORE_PUBLISHER:record.publisher,STORE_PUBLISHER_DISPLAY_NAME:record.publisherDisplayName,STORE_IDENTITY_CONFIRMED:"OWNER_APPROVED",STORE_BRAND_APPROVED:"CANDIDATE_ONLY",STORE_PACKAGE_VERSION_APPROVED:"CANDIDATE_ONLY",STORE_PACKAGE_VERSION:"1.0.0.0"};
  assert.deepEqual(msix.gate(env,"win32",msix.builderVersion),[]);
  const formal=msix.gate({...env,STORE_BUILD_MODE:undefined},"win32",msix.builderVersion).join("\n");
