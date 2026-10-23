@@ -29,6 +29,8 @@ jobs:
           STORE_IDENTITY_NAME: OkinawaDesktopTools.finance-simulation
           STORE_PUBLISHER: CN=46263F21-A700-41DB-8C9B-114C22FB82FC
           STORE_PUBLISHER_DISPLAY_NAME: Okinawa Desktop Tools
+          STORE_DISPLAY_NAME: finance-simulation
+          SOURCE_GIT_COMMIT: ${{ github.sha }}
           STORE_IDENTITY_CONFIRMED: OWNER_APPROVED
           STORE_BRAND_APPROVED: CANDIDATE_ONLY
           STORE_PACKAGE_VERSION_APPROVED: CANDIDATE_ONLY

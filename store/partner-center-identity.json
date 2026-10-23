@@ -22,5 +22,7 @@
   },
   "verificationSource": "Owner-provided Partner Center product identity fields in chat, 2026-10-22",
   "storeSubmission": "HOLD",
-  "notes": "The pasted values used the HTML entity &#x20; suffix. Identifier tokens are stored without trailing whitespace; compare the exact current Partner Center identity against AppxManifest before building/uploading. Do not infer language support, package existence, certification, or live status from Store ID alone. UNCONFIRMED; CI success is not evidence that a formal Store MSIX exists."
+  "notes": "The pasted values used the HTML entity &#x20; suffix. Identifier tokens are stored without trailing whitespace; compare the exact current Partner Center identity against AppxManifest before building/uploading. Do not infer language support, package existence, certification, or live status from Store ID alone. UNCONFIRMED; CI success is not evidence that a formal Store MSIX exists.",
+  "storeDisplayName": "finance-simulation",
+  "storeDisplayNameSource": "Owner-provided Partner Center product page screenshot, 2026-10-24"
 }
