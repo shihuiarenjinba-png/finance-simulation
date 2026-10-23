@@ -21,4 +21,4 @@ function paint(w,h){const b=Buffer.alloc(h*(w*4+1)),wide=w>h,cx=wide?.31:.5;
  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",header),chunk("IDAT",zlib.deflateSync(b,{level:9})),chunk("IEND",Buffer.alloc(0))]);}
 function run(){fs.mkdirSync(outDir,{recursive:true});for(const [name,[w,h]] of Object.entries(specs)){const file=path.join(outDir,name);if(fs.existsSync(file)){process.stdout.write("KEEP existing candidate/brand asset: "+name+"\n");continue;}const png=paint(w,h);fs.writeFileSync(file,png,{flag:"wx"});process.stdout.write("CANDIDATE "+name+" "+w+"x"+h+" "+png.length+" bytes\n");}process.stdout.write("Internal artwork candidates for "+record.productTitle+" only; no commercial brand approval is implied.\n");}
 if(require.main===module)run();
-module.exports={specs,paint,crc32};
+module.exports={specs,paint,crc32,run};
