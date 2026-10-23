@@ -34,7 +34,7 @@ test("PowerShell verifier checks Store display names, ja-JP and Source commit",(
 test("Manifest hook rewrites only Version and checks both display-name fields",()=>{
  const source='<?xml version="1.0"?><Package><Identity Name="'+record.identityName+'" Publisher="'+record.publisher+'" Version="0.1.0.0" ProcessorArchitecture="x64"/><Properties><DisplayName>'+record.storeDisplayName+'</DisplayName><PublisherDisplayName>'+record.publisherDisplayName+'</PublisherDisplayName></Properties><Applications><Application><VisualElements DisplayName="'+record.storeDisplayName+'"/></Application></Applications></Package>';
  const updated=hook.rewrite(source,"1.0.0.0");assert.ok(updated.includes('Version="1.0.0.0"'));assert.ok(updated.includes('Name="'+record.identityName+'"'));assert.ok(updated.includes('Publisher="'+record.publisher+'"'));assert.ok(updated.includes(record.publisherDisplayName));
- assert.throws(()=>hook.rewrite(source.replace(record.storeDisplayName,"Wrong title"),"1.0.0.0"),/DisplayName/);
+ assert.throws(()=>hook.rewrite(source.replace("<DisplayName>"+record.storeDisplayName+"</DisplayName>","<DisplayName>Wrong title</DisplayName>"),"1.0.0.0"),/DisplayName/);
  assert.throws(()=>hook.rewrite(source,"1.0.0.1"),/Revision/);
 });
 
