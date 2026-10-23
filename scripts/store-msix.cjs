@@ -23,7 +23,7 @@ function gate(env,platform=process.platform,installed= null){
 }
 function makeConfig(env){const suffix=record.identityName.split(".").pop().replace(/[^A-Za-z0-9]/g,"").toLowerCase();return {
  appId:"com.okinawadesktoptools."+suffix,productName:record.productTitle,asar:true,
- files:["index.html","*.css","*.js","src/**/*","desktop/main.cjs","package.json"],
+ files:["*.html","*.css","*.js","src/**/*","desktop/main.cjs","package.json"],
  directories:{output:"dist-msix-store-candidate",buildResources:"build"},
  toolsets:{winCodeSign:"1.1.0"},win:{target:[{target:"msix",arch:["x64"]}]},
  msix:{applicationId:suffix,identityName:record.identityName,publisher:record.publisher,publisherDisplayName:record.publisherDisplayName,displayName:record.productTitle,createMsixupload:true,setBuildNumber:false,capabilities:["runFullTrust"]},
