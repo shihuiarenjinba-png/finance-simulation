@@ -1,0 +1,31 @@
+$ErrorActionPreference = "Stop"
+$root = Split-Path -Parent $PSScriptRoot
+$record = Get-Content -LiteralPath (Join-Path $root "store/partner-center-identity.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+$dir = Join-Path $root "dist-msix-store-candidate"
+if (-not (Test-Path -LiteralPath $dir)) { throw "MSIX output directory missing" }
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$packages = @(Get-ChildItem -LiteralPath $dir -File -Filter "*.msix")
+$uploads = @(Get-ChildItem -LiteralPath $dir -File -Filter "*.msixupload")
+if ($packages.Count -ne 1 -or $uploads.Count -ne 1) { throw "Expected exactly one MSIX and one MSIXUPLOAD" }
+$zip = [System.IO.Compression.ZipFile]::OpenRead($packages[0].FullName)
+try {
+  $entry = $zip.GetEntry("AppxManifest.xml")
+  if (-not $entry) { throw "AppxManifest.xml missing" }
+  $reader = New-Object System.IO.StreamReader($entry.Open())
+  try { [xml]$manifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
+  $identity = $manifest.SelectSingleNode("/*[local-name()='Package']/*[local-name()='Identity']")
+  if (-not $identity) { throw "Identity node missing" }
+  if ([string]$identity.Name -cne [string]$record.identityName) { throw "Identity.Name mismatch" }
+  if ([string]$identity.Publisher -cne [string]$record.publisher) { throw "Identity.Publisher mismatch" }
+  if ([string]$identity.Version -cne [string]$env:STORE_PACKAGE_VERSION) { throw "Identity.Version mismatch" }
+  if ([string]$identity.ProcessorArchitecture -cne "x64") { throw "ProcessorArchitecture is not x64" }
+  $pdn = $manifest.SelectSingleNode("//*[local-name()='PublisherDisplayName']")
+  if (-not $pdn -or [string]$pdn.InnerText -cne [string]$record.publisherDisplayName) { throw "PublisherDisplayName mismatch" }
+  $names = @($manifest.SelectNodes("//*[local-name()='Properties']/*[local-name()='DisplayName']") + $manifest.SelectNodes("//*[local-name()='VisualElements']/*[local-name()='DisplayName']"))
+  if ($names.Count -lt 2 -or @($names | Where-Object { [string]$_.InnerText -cne [string]$record.productTitle }).Count -gt 0) { throw "Manifest DisplayName values differ from recorded title" }
+  Write-Host "MANIFEST_IDENTITY_PASS $($record.identityName) $($identity.Version) x64"
+  Write-Host ("MSIX_SHA256=" + (Get-FileHash -LiteralPath $packages[0].FullName -Algorithm SHA256).Hash)
+  Write-Host ("MSIXUPLOAD_SHA256=" + (Get-FileHash -LiteralPath $uploads[0].FullName -Algorithm SHA256).Hash)
+  Write-Host "Candidate only: live Partner Center acceptance, signed submission, WACK and Windows install/save/restore remain HOLD."
+} finally { $zip.Dispose() }
