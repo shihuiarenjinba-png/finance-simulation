@@ -11,7 +11,7 @@ function gate(env,platform=process.platform,installed= null){
  if(platform!=="win32")e.push("MSIX候補はWindowsランナーで生成してください");
  for(const [key,expected] of [["STORE_ID",record.storeId],["STORE_IDENTITY_NAME",record.identityName],["STORE_PUBLISHER",record.publisher],["STORE_PUBLISHER_DISPLAY_NAME",record.publisherDisplayName]]){if(!env[key])e.push(key+" が未設定です");else if(env[key]!==expected)e.push(key+" が正本Identity JSONと不一致です");}
  if(record.storeSubmission!=="HOLD")e.push("storeSubmission gateを再確認してください");
- if(env.STORE_IDENTITY_CONFIRMED!=="YES"&&!(candidate&&env.STORE_IDENTITY_CONFIRMED==="OWNER_APPROVED"))e.push("Identityの確認値が必要です（候補のみOWNER_APPROVEDを許可）");
+ if(env.STORE_IDENTITY_CONFIRMED!=="YES"&&!(candidate&&env.STORE_IDENTITY_CONFIRMED==="OWNER_APPROVED"))e.push("STORE_IDENTITY_CONFIRMED=YES（正式ビルド）またはCANDIDATE限定のOWNER_APPROVEDが必要です");
  if(!candidate&&env.STORE_BRAND_APPROVED!=="YES")e.push("正式ビルドにはSTORE_BRAND_APPROVED=YESが必要です");
  if(!candidate&&env.STORE_PACKAGE_VERSION_APPROVED!=="YES")e.push("STORE_PACKAGE_VERSION_APPROVED=YES（所有者承認済みStore Version）が正式ビルドに必要です");
  e.push(...versionErrors(env.STORE_PACKAGE_VERSION));
