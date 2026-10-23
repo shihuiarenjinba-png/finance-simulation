@@ -1,0 +1,51 @@
+name: Windows Edge finance screen QA (source only)
+on:
+  push:
+    branches: ["fix/liquid-save-backup-ui-20261019"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  finance-edge:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: shihuiarenjinba-png/SmallBusinessSimulator
+          ref: f6bd9ec0df0399658fbaede582643d5439bbc560
+          path: _qa_capture_tool
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run full finance source regression
+        run: npm test
+      - name: Capture all finance game tabs in actual Edge
+        shell: pwsh
+        run: |
+          node _qa_capture_tool/scripts/capture-windows-ui.cjs "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP\finance-simulation-screens"
+          exit $LASTEXITCODE
+      - name: Execute real gameplay, browser restart, and two-backup acceptance
+        shell: pwsh
+        run: |
+          node scripts/windows-edge-gameplay.cjs "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP\finance-gameplay"
+          exit $LASTEXITCODE
+      - name: Publish captured UI and error manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Finance-Windows-Edge-screen-QA
+          path: ${{ runner.temp }}/finance-simulation-screens
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Publish actual gameplay screenshots and recovery audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Finance-Windows-Gameplay-Save-QA
+          path: ${{ runner.temp }}/finance-gameplay
+          retention-days: 14
+          if-no-files-found: warn

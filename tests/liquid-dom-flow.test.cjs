@@ -41,6 +41,27 @@ test("new dashboard starts and trades without needing an external website",()=>{
  h.click("nextDay");assert.equal(h.read().day,2);
  assert.match(h.nodes.equityChart["aria-label"],/純資産の推移/);
 });
+test("reset preserves distinct saves in separate backup slots without overwriting the first one",()=>{
+ const h=boot(),key="liquid-portfolio:save:v2",prefix="liquid-portfolio:backup:v2";
+ h.click("buy");const first=h.storage.get(key);
+ h.click("reset");
+ assert.equal(h.storage.get(prefix),first);
+ assert.equal(h.read().shares[0],0);
+ h.click("borrow");const second=h.storage.get(key);
+ h.click("reset");
+ assert.equal(h.storage.get(prefix),first);
+ assert.equal(h.storage.get(prefix+":2"),second);
+ assert.notEqual(first,second);
+ assert.equal(h.nodes.backupSlot.children.length,2);
+ assert.equal(h.nodes.exportBackup.disabled,false);
+ h.nodes.backupSlot.value=prefix;
+ assert.doesNotThrow(()=>h.click("exportBackup"));
+});
+test("no saved backups are falsely offered on a new game",()=>{
+ const h=boot();
+ assert.equal(h.nodes.exportBackup.disabled,true);
+ assert.equal(h.nodes.backupSlot.children.length,0);
+});
 test("corrupt save is not overwritten on game boot",()=>{
  const bad='{"broken":';
  const h=boot(bad);assert.equal(h.storage.get("liquid-portfolio:save:v2"),bad);
