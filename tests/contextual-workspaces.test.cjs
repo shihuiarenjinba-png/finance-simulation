@@ -7,7 +7,9 @@ test("trading, borrowing and history are task-specific, not storefront graphics"
   assert.match(html,new RegExp('id="view-'+name+'"'));
  for(const name of ["portfolio","trade","bank","records"])
   assert.match(styles,new RegExp('#view-'+name+' \\.panel'));
- assert.match(app,/function switchView\(v\)/);
+ assert.match(app,/function switchView\(v(?:,\{focus=false\}=\{\})?\)/);
+ assert.match(app,/aria-selected/);
+ assert.match(app,/ArrowRight/);
  assert.match(styles,/\.view\[hidden\]\{display:none!important\}/);
  assert.doesNotMatch(styles,/shop-context|ekiden-art-runner|scene-worker|http:\/\/|https:\/\//);
 });
