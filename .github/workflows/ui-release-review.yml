@@ -1,0 +1,39 @@
+name: Buyer UI release review
+on:
+  push:
+    branches:
+      - work/ui-release-review-20261025
+    paths:
+      - 'index.html'
+      - 'src/**'
+      - '*.css'
+      - 'tests/ui-release-browser.cjs'
+      - '.github/workflows/ui-release-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run existing source regression
+        run: npm test
+      - name: Install isolated browser QA tools
+        run: npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+      - name: Install Chromium browser
+        run: npx playwright install --with-deps chromium
+      - name: Real browser interaction and responsive screenshots
+        run: node tests/ui-release-browser.cjs
+      - name: Upload QA report and real screenshots
+        if: ${{ always() && hashFiles('ui-release-review/**') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: buyer-ui-review-${{ github.sha }}
+          path: ui-release-review/
+          retention-days: 14
+          if-no-files-found: error
