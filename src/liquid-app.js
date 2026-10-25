@@ -16,9 +16,20 @@ function action(event){if(recovery){notice="セーブ復旧中は操作できま
  }catch(e){notice=e.message;render();}}
 function storeState(next){try{localStorage.setItem(SAVE,JSON.stringify(next));return true;}
  catch(e){notice="保存に失敗したため、この操作は確定しませんでした。";return false;}}
-function switchView(v){view=v;for(const name of ["overview","portfolio","trade","bank","records"])$("view-"+name).hidden=v!==name;
- document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("selected",b.dataset.view===v));
- const titles={overview:"資産ダッシュボード",portfolio:"ポートフォリオ",trade:"資産の売買",bank:"借入・返済",records:"取引履歴・セーブ"};$("viewTitle").textContent=titles[v];}
+const VIEWS=["overview","portfolio","trade","bank","records"];
+function switchView(v,{focus=false}={}){
+ if(!VIEWS.includes(v))return false;
+ view=v;
+ for(const name of VIEWS)$("view-"+name).hidden=v!==name;
+ document.querySelectorAll("#sidebarNav [data-view]").forEach(b=>{
+  const active=b.dataset.view===v;
+  b.classList.toggle("selected",active);
+  b.setAttribute("aria-selected",String(active));
+  b.tabIndex=active?0:-1;
+  if(active&&focus)b.focus();
+ });
+
+ const titles={overview:"資産ダッシュボード",portfolio:"ポートフォリオ",trade:"資産の売買",bank:"借入・返済",records:"取引履歴・セーブ"};$("viewTitle").textContent=titles[v];return true;}
 function stats(){
  $("day").textContent=state.day+" / "+E.MAX_DAYS+" 営業日";
  $("equity").textContent=money(E.equity(state));$("cash").textContent=money(state.cash);
@@ -95,6 +106,16 @@ async function importFile(file){if(!file)return;try{
 function init(){state=load();if(!recovery)store();render();
  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));
  document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.go)));
+ $("sidebarNav").addEventListener("keydown",event=>{
+  if(!["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
+  event.preventDefault();
+  const current=VIEWS.indexOf(view);
+  const next=event.key==="Home"?0:event.key==="End"?VIEWS.length-1:
+   (current+(event.key==="ArrowLeft"||event.key==="ArrowUp"?-1:1)+VIEWS.length)%VIEWS.length;
+  switchView(VIEWS[next],{focus:true});
+ });
+ switchView(view);
+
  $("assetSelect").addEventListener("change",updateQuote);$("quantity").addEventListener("input",updateQuote);
  $("bankAmount").addEventListener("input",updateBank);
  $("buy").addEventListener("click",()=>{try{action({op:"buy",asset:$("assetSelect").value,quantity:positive("quantity")});}catch(e){notice=e.message;render();}});
