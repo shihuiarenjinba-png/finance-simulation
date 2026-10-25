@@ -6,11 +6,11 @@
 <aside class="sidebar" aria-label="ゲームメニュー">
 <div class="brand"><span class="brand-mark">◈</span><div>LIQUID<br><strong>PORTFOLIO</strong></div></div>
 <div class="nav-caption">ゲーム</div>
-<nav id="sidebarNav"><button class="selected" type="button" data-view="overview">▦　ダッシュボード</button>
-<button type="button" data-view="portfolio">◈　ポートフォリオ</button>
-<button type="button" data-view="trade">⇄　売買する</button>
-<button type="button" data-view="bank">▣　借入・返済</button>
-<button type="button" data-view="records">☷　取引履歴・セーブ</button></nav>
+<nav id="sidebarNav" role="tablist" aria-label="資産ゲームの画面切り替え"><button class="selected" type="button" role="tab" aria-controls="view-overview" aria-selected="true" tabindex="0" data-view="overview">▦　ダッシュボード</button>
+<button type="button" role="tab" aria-controls="view-portfolio" aria-selected="false" tabindex="-1" data-view="portfolio">◈　ポートフォリオ</button>
+<button type="button" role="tab" aria-controls="view-trade" aria-selected="false" tabindex="-1" data-view="trade">⇄　売買する</button>
+<button type="button" role="tab" aria-controls="view-bank" aria-selected="false" tabindex="-1" data-view="bank">▣　借入・返済</button>
+<button type="button" role="tab" aria-controls="view-records" aria-selected="false" tabindex="-1" data-view="records">☷　取引履歴・セーブ</button></nav>
 <div class="sidebar-bottom"><a href="./legacy.html">旧24四半期版を開く ↗</a><p>完全オフラインの架空投資ゲーム。実在の証券や市場価格は扱いません。</p></div>
 </aside>
 <main class="main">
@@ -22,22 +22,22 @@
 <div class="stat"><small>保有資産の評価額</small><strong id="holdings">—</strong><span>架空の市場価格</span></div>
 <div class="stat"><small>借入残高</small><strong id="debt">—</strong><span>日次利息あり</span></div>
 </div>
-<section id="view-overview" class="view">
+<section id="view-overview" class="view" role="tabpanel">
 <div class="main-grid">
 <div class="panel"><div class="panel-head"><h2>純資産の推移</h2><small>市場を進めると更新</small></div>
 <svg id="equityChart" viewBox="0 0 640 220" role="img" aria-label="営業日ごとの純資産推移"><path id="equityLine" d=""></path></svg><div class="chart-bottom"><span>開始</span><span>最新</span></div></div>
 <div class="panel"><div class="panel-head"><h2>現在の資金配分</h2></div><div id="donut" class="donut" role="img" aria-label="ポートフォリオの内訳"><div><small>純資産</small><strong id="donutEquity">—</strong></div></div><div id="legend" class="legend"></div></div>
 </div>
 <div class="panel"><div class="panel-head"><h2>保有銘柄</h2><button class="text-button" type="button" data-go="trade">売買画面へ →</button></div><div id="holdingsTable" class="asset-cards"></div></div></section>
-<section id="view-portfolio" class="view" hidden><div class="panel"><h2>資産ポートフォリオ</h2><p>売却可能な架空資産を保有します。どの銘柄もゲーム内で即時売却できますが、価格変動・手数料のリスクがあります。</p><div id="portfolioTable" class="asset-cards"></div></div></section>
-<section id="view-trade" class="view" hidden><div class="panel"><h2>売買注文</h2><p>売買が成立すると現金・保有口数へすぐ反映します。信用取引・空売りはできません。</p>
+<section id="view-portfolio" class="view" role="tabpanel" hidden><div class="panel"><h2>資産ポートフォリオ</h2><p>売却可能な架空資産を保有します。どの銘柄もゲーム内で即時売却できますが、価格変動・手数料のリスクがあります。</p><div id="portfolioTable" class="asset-cards"></div></div></section>
+<section id="view-trade" class="view" role="tabpanel" hidden><div class="panel"><h2>売買注文</h2><p>売買が成立すると現金・保有口数へすぐ反映します。信用取引・空売りはできません。</p>
 <div class="form-grid"><label>売買する資産<select id="assetSelect"></select></label><label>口数<input id="quantity" inputmode="numeric" type="number" min="1" max="10000" step="1" value="1"></label></div>
 <div id="quote" class="quote" role="status"></div><div class="actions"><button type="button" class="primary" id="buy">この条件で購入</button><button type="button" id="sell">この条件で売却</button></div><small>手数料は取引金額の0.2%（最低1ポイント）。架空の約定価格を使用し、外部への発注は行いません。</small></div></section>
-<section id="view-bank" class="view" hidden><div class="panel"><h2>借入・返済</h2><p>架空の融資枠は最大30,000ポイントです。借入額は現金と負債へ同額反映され、純資産は増えません。</p>
+<section id="view-bank" class="view" role="tabpanel" hidden><div class="panel"><h2>借入・返済</h2><p>架空の融資枠は最大30,000ポイントです。借入額は現金と負債へ同額反映され、純資産は増えません。</p>
 <div class="form-grid"><label>金額（ポイント）<input type="number" id="bankAmount" min="1" max="30000" step="1000" value="5000"></label></div>
 <div id="bankQuote" class="quote"></div><div class="actions"><button class="primary" type="button" id="borrow">借り入れる</button><button type="button" id="repay">返済する</button></div>
 <small>残高には営業日ごとに0.03%の利息（最低1ポイント）がかかります。現金が不足する日は先に資産を売却してください。</small></div></section>
-<section id="view-records" class="view" hidden><div class="panel"><h2>取引・セーブ管理</h2><div id="history"></div><div class="actions"><button type="button" id="export">セーブ書き出し</button><button type="button" id="import">セーブ読み込み</button><button type="button" id="reset" class="danger">新しい運用を始める</button><input id="importFile" type="file" accept=".json,application/json" hidden></div>
+<section id="view-records" class="view" role="tabpanel" hidden><div class="panel"><h2>取引・セーブ管理</h2><div id="history"></div><div class="actions"><button type="button" id="export">セーブ書き出し</button><button type="button" id="import">セーブ読み込み</button><button type="button" id="reset" class="danger">新しい運用を始める</button><input id="importFile" type="file" accept=".json,application/json" hidden></div>
 <p>旧版のセーブは別のキーで保存されます。旧24四半期版はサイドバーのリンクから引き続き利用できます。</p></div></section>
 <footer>流動性・評価額・価格変動は架空のゲームモデルです。実際の金融市場や投資助言ではありません。</footer>
 </main></div></body></html>
