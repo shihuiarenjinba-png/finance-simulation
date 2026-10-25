@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - ops/msix-candidate-build-20261023
+      - work/ui-release-review-20261025
   workflow_dispatch:
 permissions:
   contents: read
