@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - '*.css'
       - 'tests/ui-release-browser.cjs'
+      - 'tests/*.test.cjs'
       - '.github/workflows/ui-release-review.yml'
   workflow_dispatch:
 permissions:
