@@ -14,6 +14,21 @@ function action(event){if(recovery){notice="セーブ復旧中は操作できま
  event.op==="borrow"?"架空資金を借り入れました。":"借入を返済しました。";
  render();
  }catch(e){notice=e.message;render();}}
+function replaceWithBackup(next){
+ const before=localStorage.getItem(SAVE),oldBackup=localStorage.getItem(BACKUP);
+ let backupWritten=false;
+ try{
+  if(before!==null){localStorage.setItem(BACKUP,before);backupWritten=true;}
+  // The original active save stays intact until this final write succeeds.
+  localStorage.setItem(SAVE,JSON.stringify(next));
+ }catch(error){
+  if(backupWritten)try{
+   if(oldBackup===null)localStorage.removeItem(BACKUP);
+   else localStorage.setItem(BACKUP,oldBackup);
+  }catch(_rollbackError){}
+  throw error;
+ }
+}
 function storeState(next){try{localStorage.setItem(SAVE,JSON.stringify(next));return true;}
  catch(e){notice="保存に失敗したため、この操作は確定しませんでした。";return false;}}
 const VIEWS=["overview","portfolio","trade","bank","records"];
@@ -120,8 +135,8 @@ async function importFile(file){if(!file)return;try{
  if(file.size>400000)throw Error("セーブの容量が大きすぎます。");
  const data=JSON.parse(await file.text());if(data.schema!==E.VERSION)throw Error("新しい流動資産版のセーブのみ読み込めます。");
  const next=E.validate(data.state);if(!confirm("現在の保存内容をバックアップし、読み込みますか？"))return;
- const previous=localStorage.getItem(SAVE);if(previous!==null)localStorage.setItem(BACKUP,previous);
- localStorage.setItem(SAVE,JSON.stringify(next));state=next;recovery=false;unreadable=null;notice="セーブを復元しました。";render();
+ replaceWithBackup(next);
+ state=next;recovery=false;unreadable=null;notice="セーブを復元しました。";render();
  }catch(e){notice=e.message;render();}}
 function init(){state=load();if(!recovery)store();render();
  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));
@@ -148,8 +163,9 @@ function init(){state=load();if(!recovery)store();render();
  $("import").addEventListener("click",()=>$("importFile").click());
  $("importFile").addEventListener("change",e=>{const f=e.target.files[0];e.target.value="";void importFile(f);});
  $("reset").addEventListener("click",()=>{if(!confirm("現在のセーブをバックアップして新しい運用を始めますか？"))return;
- try{const raw=localStorage.getItem(SAVE);if(raw!==null)localStorage.setItem(BACKUP,raw);
- const next=E.initial();localStorage.setItem(SAVE,JSON.stringify(next));state=next;recovery=false;unreadable=null;notice="新しい運用を始めました。";render();switchView("overview");}
+ try{
+ const next=E.initial();replaceWithBackup(next);
+ state=next;recovery=false;unreadable=null;notice="新しい運用を始めました。";render();switchView("overview");}
  catch(e){notice="バックアップまたは新規保存に失敗しました。既存セーブを保護します。";render();}});
 }
 document.addEventListener("DOMContentLoaded",init);
