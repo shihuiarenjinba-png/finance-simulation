@@ -35,7 +35,16 @@ function stats(){
  $("equity").textContent=money(E.equity(state));$("cash").textContent=money(state.cash);
  $("holdings").textContent=money(E.value(state));$("debt").textContent=money(state.debt);
  const gain=E.equity(state)-E.START;$("gain").textContent=(gain>=0?"+":"")+money(gain)+" （開始から）";
- $("message").textContent=notice||"架空の流動資産を買い、売り、ポートフォリオを調整できます。";
+ const tip=state.day>=E.MAX_DAYS?
+  "120営業日を完走しました。純資産と取引履歴を振り返り、別の資産配分にも挑戦できます。":
+  state.cash<Math.max(1,Math.round(state.debt*.0003))&&state.debt>0?
+  "次の日の利息を払う現金が不足しています。保有資産の売却を検討してください。":
+  state.shares.every(q=>q===0)?
+  "まず「資産の売買」で架空資産の価格と購入費用を比較してみましょう。":
+  state.debt>0?
+  "借入残高と利息を確認し、売買と返済のバランスを考えましょう。":
+  "資産の値動き・保有比率を確認し、次の営業日に進むか売買するか決めましょう。";
+ $("message").textContent=notice||tip;
  $("nextDay").disabled=recovery||state.day>=E.MAX_DAYS;
  $("buy").disabled=recovery;$("sell").disabled=recovery;$("borrow").disabled=recovery;$("repay").disabled=recovery;
 }
@@ -77,15 +86,26 @@ function positive(id){const v=Number($(id).value);if(!Number.isSafeInteger(v)||v
 function updateQuote(){
  try{const i=E.ASSETS.findIndex(a=>a.id===$("assetSelect").value),quantity=positive("quantity");if(i<0||quantity>10000)throw Error("口数を確認してください。");
  const gross=state.prices[i]*quantity,fee=E.fee(gross);
+ const canBuy=!recovery&&state.cash>=gross+fee;
+ const canSell=!recovery&&state.shares[i]>=quantity;
+ $("buy").disabled=!canBuy;$("sell").disabled=!canSell;
  $("quote").textContent=E.ASSETS[i].name+" ｜ 参考価格 "+money(state.prices[i])+
  " × "+quantity+"口 ｜ 手数料 "+money(fee)+" ｜ 購入時 "+money(gross+fee)+
- " / 売却時受取 "+money(gross-fee)+" ｜ 保有 "+state.shares[i]+"口";
- }catch(e){$("quote").textContent=e.message;}
+ " / 売却時受取 "+money(gross-fee)+" ｜ 保有 "+state.shares[i]+"口"+
+ (canBuy?"":" ｜ 購入不可：手数料込みの現金が不足しています。")+
+ (canSell?"":" ｜ 売却不可：指定口数を保有していません。");
+ }catch(e){$("quote").textContent=e.message;$("buy").disabled=true;$("sell").disabled=true;}
 }
-function updateBank(){let v=Number($("bankAmount").value);$("bankQuote").textContent="借入残高 "+
+function updateBank(){let v=Number($("bankAmount").value);
+ const valid=Number.isSafeInteger(v)&&v>0&&v<=30000;
+ $("borrow").disabled=recovery||!valid||state.debt+v>E.LOAN_LIMIT;
+ $("repay").disabled=recovery||!valid||v>state.debt||v>state.cash;
+ $("bankQuote").textContent="借入残高 "+
  money(state.debt)+" / 上限 "+money(E.LOAN_LIMIT)+" ｜ 現金 "+money(state.cash)+
  " ｜ 翌日の概算利息 "+money(state.debt?Math.max(1,Math.round(state.debt*.0003)):0)+
- (Number.isSafeInteger(v)&&v>0?" ｜ 指定額 "+money(v):"");}
+ (Number.isSafeInteger(v)&&v>0?" ｜ 指定額 "+money(v):"")+
+ (!valid?" ｜ 1〜30,000ptの整数で入力してください。":
+ $("borrow").disabled&&$("repay").disabled?" ｜ この金額では借入・返済できません。":"");}
 function records(){const root=$("history");root.replaceChildren();
  if(!state.events.length)root.append(node("p","まだ取引はありません。","sub"));
  for(const e of state.events.slice(-40).reverse()){
